@@ -41,9 +41,31 @@ TEMPLATE = '''<!DOCTYPE html>
     fill: green;
 }
 
+.label {
+    font-family:Verdana;
+    font-size:8px;
+    fill:blue;
+}
+
+.transition-name.label {
+  fill:blue;
+}
+.transition-guard.label {
+  fill:blue;
+}
+.place-tokens.label {
+  font-size:12px;
+  fill:green;
+}
+
+#tokens {
+    font-family:Verdana;
+    font-size:12px;
+    fill:gray;
+}
 </style>
 <body>
-<svg width='960' height='500' id='net' xmlns="http://www.w3.org/2000/svg" version="1.1">
+<svg width='960' height='500' xmlns="http://www.w3.org/2000/svg" version="1.1">
     <defs>
         <marker id="normal-arc"
           viewBox="0 0 10 10" refX="30" refY="5" 
@@ -59,7 +81,6 @@ TEMPLATE = '''<!DOCTYPE html>
           orient="auto">
           <path d="M 0 5 L 5 0 L 10 5 L 5 10 z" fill="#bbb"/>
         </marker>
-
         <marker id="inhibitor-start-arc"
           viewBox="0 0 10 10" refX="-25" refY="5" 
           markerUnits="strokeWidth"
@@ -67,9 +88,15 @@ TEMPLATE = '''<!DOCTYPE html>
           orient="auto">
           <path d="M 0 5 L 5 0 L 10 5 L 5 10 z" fill="#bbb"/>
         </marker>
-
         %(markers)s
       </defs>
+
+      <g id='net'/>
+      <g id='tokens-widget'>
+        <text x='10' y='20' id='tokens'>
+        %(tokens)s
+        </text>
+      </g>
 </svg>
 
 <script src="http://d3js.org/d3.v3.min.js"></script>
@@ -126,6 +153,8 @@ var svg = d3.select("#net")
     .enter()
       .append('path')
       .attr("class", 'place')
+      .attr("onmouseover", function(d){return "document.getElementById('place-text-"+d.id+"').setAttribute('font-weight','bold')"})
+      .attr("onmouseout", function(d){return "document.getElementById('place-text-"+d.id+"').setAttribute('font-weight','normal')"})      
       .attr("marker-start", function(d){return 'url(#marker_start_'+d.id+')'})
       .attr("marker-mid", function(d){return 'url(#marker_mid_'+d.id+')'})
       .attr("marker-end", function(d){return 'url(#marker_end_'+d.id+')'})      
@@ -178,8 +207,7 @@ ARC_MARKER = '''<marker id="%s"
           markerUnits="strokeWidth"
           markerWidth="36" markerHeight="36"
           orient="0">
-            <text x="0" y="0" 
-                font-family="Verdana" font-size="8" fill="blue" >%s</text>
+            <text class='label'>%s</text>
         </marker>'''
 
 TRANSITION_NAME_MARKER = '''<marker id="%s"
@@ -187,16 +215,30 @@ TRANSITION_NAME_MARKER = '''<marker id="%s"
           markerUnits="strokeWidth"
           markerWidth="36" markerHeight="36"
           orient="auto">
-            <text x="0" y="0" 
-                font-family="Verdana" font-size="8" fill="blue" >%s</text>
+            <text class="transition-name label">%s</text>
         </marker>'''
 TRANSITION_GUARD_MARKER = '''<marker id="%s"
           viewBox="0 0 80 20" refX="0" refY="-10" 
           markerUnits="strokeWidth"
           markerWidth="46" markerHeight="46"
           orient="auto">
-            <text x="0" y="0" 
-                font-family="Verdana" font-size="8" fill="blue" >%s</text>
+            <text class="transition-guard label">%s</text>
         </marker>'''
+
+PLACE_TOKENS = '''<marker id="%s"
+  viewBox="0 0 52 18" refX="4" refY="6" 
+  markerUnits="strokeWidth"
+  markerWidth="52" markerHeight="18"
+  orient="0">
+    <text x="1" y="10" class='place-tokens label'>%s</text>
+</marker>'''
+
+
+PLACE_INFO = '''<tspan id='%(id)s' x='10' dy='25' class='tokens-group'>%(name)s
+            %(tokens)s
+        </tspan> 
 '''
+
+TOKEN_INFO = '''
+  <tspan id='%s' x='20' dy='16'>%s</tspan>
 '''

@@ -30,7 +30,7 @@ def login_net():
              guard=illegal_attempt_guard,
              inputs={('u', 'p'):(net.places['p3'],)},
              outputs={():(net.places['p4'],)},
-             inhibitors={('u1', 'p1'):(net.places['p2'],)}
+             inhibitors={('u', 'p'):(net.places['p2'],)}
             )
 
     net.bind('attack',
@@ -44,4 +44,8 @@ class TestLogin(TestCase):
     def test_define_login_net(self):
         print
         net = login_net()
-        net.render()
+        M0 = {net.places['p1']:[{},{},{}],
+              net.places['p2']:[{'u':'ID1', 'p':'PSWD1'},],
+              net.places['p3']:[{'u':'IDn+1', 'p':'PSWDn+1'},]
+             }
+        net.display(marking=M0)

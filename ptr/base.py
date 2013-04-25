@@ -1,11 +1,19 @@
 import subprocess
 from inspect import getargspec
+from math import sin, cos
 import json
 from tempfile import NamedTemporaryFile as Temp
 from Queue import Queue
 
 from .transition import bind
-from .template import TEMPLATE, PLACE_MARKER, ARC_MARKER, TRANSITION_NAME_MARKER, TRANSITION_GUARD_MARKER
+from .template import ( TEMPLATE,
+                        PLACE_MARKER,
+                        ARC_MARKER,
+                        TRANSITION_NAME_MARKER,
+                        TRANSITION_GUARD_MARKER,
+                        PLACE_TOKENS,
+                        PLACE_INFO,
+                        TOKEN_INFO)
 
 
 class Net(object):
@@ -21,57 +29,41 @@ class Net(object):
     def bind(self, *args, **kwargs):
         self.transitions.append(bind(*args, **kwargs))
 
+    def enabled(self, transition, marking):
+        return False
+
+
 class Place(object):
     def __init__(self, name):
         self.name = name
 
-class Marking(object):
-    def __init__(self, net):
-        pass
-'''
-{
-    nodes:[
-        {name:'p0', class:'place'},        
-        {name:'p1', class:'place'},
-        {name:'startLogin', class:'transition', guard:''},
-        ],
-    arcs:[
-        {source:0, target:2, label:'', class:'input'},
-        {source:2, target:1, label:'', class:'output'},
-    ],
-}
-'''
-
-class D3Net(Net):
+class D3Net(Net):    
     def format_arc_label(self, label):
         return '&lt;%s&gt;'%(','.join(['?%s'%var for var in label]) if label else '&cent;')
 
-    def enabled(self, transtion, marking):
-        return False
-
-    def tokens(self, place, marking):
-        return []
-
-    def iter_places(self, markers, marking=[]):
+    def iter_places(self, markers, marking={}):
         for name, place in self.places.items():
+            tokens = marking.get(place, [])
             yield {'name':name,
                    'class':'place',
                    'id':id(place),
-                   'tokens':self.tokens(place, marking)}
+                   'tokens':tokens,}
             
             markers.append(PLACE_MARKER%('marker_end_%s'%id(place), name))
+            if tokens:
+                markers.append(PLACE_TOKENS%('marker_start_%s'%id(place), len(tokens)))
 
-    def iter_transitions(self, markers, marking=[]):
+
+
+    def iter_transitions(self, markers, marking={}):
         for transition in self.transitions:
-            data = {
+            yield {
                 'name':transition.__name__,
                 'class':('attack ' if transition.is_attack else '') + 'transition',
                 'guard':transition.guard.__doc__ if transition.guard else '',
                 'id':id(transition),
                 'enabled':self.enabled(transition, marking),
             }
-            print data
-            yield data
             markers.append(TRANSITION_NAME_MARKER%('marker_start_%s'%id(transition), transition.__name__))
             if transition.guard:
                 markers.append(TRANSITION_GUARD_MARKER%('marker_end_%s'%id(transition), transition.guard.__doc__))
@@ -90,6 +82,7 @@ class D3Net(Net):
                            'target':target,
                            'class':'input',
                            'curved':0,
+                           'label':label,
                            'id':_id}
 
                     if (source, target) in stpairs:
@@ -110,6 +103,7 @@ class D3Net(Net):
                     data = {'source':source,
                            'target':target,
                            'class':'output',
+                           'label':label,
                            'curved':0,
                            'id':_id}
                     
@@ -127,7 +121,7 @@ class D3Net(Net):
                     data = {'source':idmap[id(transition)],
                            'target':idmap[id(place)],
                            'class':'inhibitor',
-                           'label':self.format_arc_label(arc_label),
+                           'label':label,
                            'curved':0,
                            'id':_id}
                     
@@ -139,7 +133,7 @@ class D3Net(Net):
                     markers.append(ARC_MARKER%('marker_mid_%s'%_id, label))
 
             
-    def d3_env(self, marking=[]):
+    def d3_env(self, marking={}):
         markers = []
         places = list(self.iter_places(markers, marking=marking))
         transitions = list(self.iter_transitions(markers, marking=marking))
@@ -153,13 +147,25 @@ class D3Net(Net):
                         arcs[i]['curved'] = -1
 
         return {'graph':json.dumps({'places':places, 'transitions':transitions, 'arcs':arcs}, indent=4),
-                'markers':'\n\t'.join(markers)}
+                'markers':'\n\t'.join(markers),
+                'tokens':self.tokens_info(marking)}
 
+    def tokens_info(self, marking):
+        infos = []
+        for place, tokens in marking.items():
+            if tokens:
+                infos.append(PLACE_INFO%{'id':'place-text-%s'%id(place),
+                                         'name':place.name,
+                                         'tokens':'\n'.join((TOKEN_INFO%('token-text-%s'%id(token), token.__repr__()) for token in tokens))})
+        return '\n'.join(infos)
+    def render(self, marking={}):
+        return TEMPLATE%self.d3_env(marking=marking)
 
-    def render(self, marking=[]):
+    def display(self, marking={}):
         filename = None
         with Temp(delete=False, suffix='.html') as temp:
-            temp.write(TEMPLATE%self.d3_env(marking=marking))
+            temp.write(self.render(marking=marking))
             filename = temp.name
 
         subprocess.call(["chromium-browser", filename])
+

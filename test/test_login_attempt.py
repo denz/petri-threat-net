@@ -5,13 +5,12 @@ from pprint import pprint
 from ptr.transition import bind
 from ptr.base import D3Net
 
-def legal_attempt_guard(u, p):
-    '''(?u,?p)'''
-    return True
-
-def illegal_attempt_guard(u, p):
+def illegal_attempt_guard(u=None, p=None):
     '''(?u,?p)[?u!=""]'''
-    return True
+    return u != ""
+
+def legal_attempt_to_p1_arc_label(tokens):
+    return {}
 
 def login_net():
     net = D3Net(*['p%s'%i for i in range(5)])
@@ -20,11 +19,10 @@ def login_net():
              outputs={():(net.places['p1'],)})
 
     net.bind('legalAttempt',
-             guard = legal_attempt_guard,
              inputs={():(net.places['p1'],),
                      ('u', 'p'):(net.places['p2'],)
                     },
-             outputs={():(net.places['p1'],)})
+             outputs={legal_attempt_to_p1_arc_label:(net.places['p1'],)})
 
     net.bind('illegalAttempt',
              guard=illegal_attempt_guard,
@@ -36,15 +34,14 @@ def login_net():
     net.bind('attack',
              inputs={():(net.places['p4'],)},
              is_attack=True)
-
-
     return net
 
 class TestLogin(TestCase):
     def test_define_login_net(self):
         print
         net = login_net()
-        M0 = {net.places['p1']:[{},{},{}],
+
+        M0 = {net.places['p1']:[{},],
               net.places['p2']:[{'u':'ID1', 'p':'PSWD1'},],
               net.places['p3']:[{'u':'IDn+1', 'p':'PSWDn+1'},]
              }

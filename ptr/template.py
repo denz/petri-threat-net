@@ -191,7 +191,6 @@ var svg = d3.select("#net")
 </script>
 
 </body>
-
 '''
 
 PLACE_MARKER = '''<marker id="%s"

@@ -24,7 +24,7 @@ def bind(name=None,
     guard - guard function of transition
     inputs, outputs, inhibitors:
         dictionary of {arc_label:(Place(),...)}
-            arc_label is a tuple of 'literals' to match again
+            arc_label is a function that tests and transforms tokenlist
 
             calling of arc_label with token returns a substitution
     is_attack - bool
@@ -36,42 +36,30 @@ def bind(name=None,
         for place in []:
             pass
 
-    def substitutions(marking):
-        '''
-        marking:
-        {place:[token, ...]}
-        token:
-        {'u':'ID1', 'p':'PSWD1'}
-
-        Transition t is said to be enabled or firable by `teta` under a
-        marking if:
-        '''
+    def enabled(marking):
         for label, places in inhibitors.items():
             for place in places:
                 for token in marking[place]:
                     if matches(label, token):
                         return
-
         tokenmap = defaultdict(list)
-
         for label, places in inputs.items():
             placed_tokens = defaultdict(list)
             for place in places:
-                for token in marking[place]:
+                for token in marking.get(place, []):
                     if matches(label, token):
-                        if guard(**token):
+                        if not guard:
                             placed_tokens[place].append(token)
-
+                        elif guard(**token):
+                            placed_tokens[place].append(token)
             if sorted(placed_tokens.keys()) != sorted(places):
                 return
-            
+
             for place, tokens in placed_tokens.items():
                 tokenmap[place].extend(tokens)
 
-        assert sorted(tokenmap) == sorted(inputs)
-        for substitution in substitutions(tokenmap, inputs):
-            yield substitution
-            
+        return tokenmap
+
     translate.__doc__ = doc
     translate.__name__ = name
     translate.guard = guard
@@ -79,5 +67,6 @@ def bind(name=None,
     translate.inputs = inputs
     translate.outputs = outputs
     translate.inhibitors = inhibitors
+    translate.enabled = enabled
 
     return translate

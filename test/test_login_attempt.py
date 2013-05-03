@@ -3,7 +3,7 @@ from unittest import TestCase
 from pprint import pprint
 
 from ptr.transition import bind
-from ptr.base import D3Net
+from ptr.render import D3Net
 
 def illegal_attempt_guard(u=None, p=None):
     '''(?u,?p)[?u!=""]'''
@@ -45,4 +45,6 @@ class TestLogin(TestCase):
               net.places['p2']:[{'u':'ID1', 'p':'PSWD1'},],
               net.places['p3']:[{'u':'IDn+1', 'p':'PSWDn+1'},]
              }
-        net.display(marking=M0)
+
+        pprint (dict(net.substitutions(M0)))
+        net.render(marking=M0)

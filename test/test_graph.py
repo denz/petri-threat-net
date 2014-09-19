@@ -1,10 +1,10 @@
-# -*- coding: utf-8 -*-
-from unittest import TestCase
 from pprint import pprint
+from copy import deepcopy as copy
+from unittest import TestCase
 
 from ptr.transition import bind
 from ptr.render import D3Net
-
+from ptr.reachability import Graph
 def illegal_attempt_guard(u=None, p=None):
     '''(?u,?p)[?u!=""]'''
     return u != ""
@@ -36,15 +36,25 @@ def login_net():
              is_attack=True)
     return net
 
-class TestLogin(TestCase):
-    def test_define_login_net(self):
-        print
-        net = login_net()
 
+
+
+class TestGraph(TestCase):
+    def net(self, n):
+        return D3Net(*[i for i in range(n)])    
+    
+    def test_of_test(self):
+        net = login_net()
         M0 = {net.places['p1']:[{},],
-              net.places['p2']:[{'u':'ID1', 'p':'PSWD1'},],
-              net.places['p3']:[{'u':'IDn+1', 'p':'PSWDn+1'},]
+              net.places['p2']:[{'u':'ID1', 'p':'PSWD1'},
+                                {'u':'ID2', 'p':'PSWD2'},
+                                {'u':'ID3', 'p':'PSWD3'}],
+
+              net.places['p3']:[{'u':'ID4', 'p':'PSWD4'},
+                                {'u':'ID5', 'p':'PSWD5'},
+                                {'u':'ID6', 'p':'PSWD6'}]
              }
 
-        # pprint (dict(net.substitutions(M0)))
-        net.render(marking=M0)
+        g = Graph(net, M0)
+        g.render('temp')
+        

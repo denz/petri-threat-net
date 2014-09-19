@@ -16,7 +16,7 @@ def package_env(file_name, strict=False):
     else:
         return ''
 
-PROJECT = 'Petri Threat net'
+PROJECT = 'python-petri'
 
 VERSION = package_env('VERSION')
 URL = package_env('URL')

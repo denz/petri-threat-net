@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<style>
+
+.place {
+  stroke: #fff;
+  stroke-width: 1.5px;
+  fill:grey;
+}
+
+
+.transition {
+  stroke: #fff;
+  stroke-width: 1.5px;
+  fill:grey;
+}
+
+.attack {
+  stroke: red;
+}
+
+.arc {
+  stroke:#bbb;
+  stroke-opacity: .6;
+  stroke-width: 2;
+}
+
+.input, .output {
+    marker-end:url(#normal-arc);
+}
+
+.inhibitor {
+    marker-start:url(#inhibitor-start-arc);
+    marker-end:url(#inhibitor-end-arc);
+}
+
+.attack.enabled {
+    fill: red;
+}
+.enabled {
+    fill: green;
+}
+
+.label {
+    font-family:Verdana;
+    font-size:8px;
+    fill:blue;
+}
+
+.transition-name.label {
+  fill:blue;
+}
+.transition-guard.label {
+  fill:blue;
+}
+.place-tokens.label {
+  font-size:12px;
+  fill:green;
+}
+
+#tokens {
+    font-family:Verdana;
+    font-size:12px;
+    fill:gray;
+}
+</style>
+<body>
+<svg width='960' height='500' xmlns="http://www.w3.org/2000/svg" version="1.1">
+    <defs>
+        <marker id="normal-arc"
+          viewBox="0 0 10 10" refX="30" refY="5" 
+          markerUnits="strokeWidth"
+          markerWidth="4" markerHeight="3"
+          orient="auto">
+          <path d="M 0 0 L 10 5 L 0 10 z" fill="#bbb"/>
+        </marker>
+        <marker id="inhibitor-end-arc"
+          viewBox="0 0 10 10" refX="30" refY="5" 
+          markerUnits="strokeWidth"
+          markerWidth="4" markerHeight="3"
+          orient="auto">
+          <path d="M 0 5 L 5 0 L 10 5 L 5 10 z" fill="#bbb"/>
+        </marker>
+        <marker id="inhibitor-start-arc"
+          viewBox="0 0 10 10" refX="-25" refY="5" 
+          markerUnits="strokeWidth"
+          markerWidth="4" markerHeight="3"
+          orient="auto">
+          <path d="M 0 5 L 5 0 L 10 5 L 5 10 z" fill="#bbb"/>
+        </marker>
+        <marker id="marker_end_3070075628"
+  viewBox="0 0 52 18" refX="-20" refY="10" 
+  markerUnits="strokeWidth"
+  markerWidth="52" markerHeight="18"
+  orient="0">
+    <text x="1" y="10" font-family="Verdana" font-size="10" fill="black" opacity='0.6'>p2</text>
+</marker>
+	<marker id="marker_start_3070075628"
+  viewBox="0 0 52 18" refX="4" refY="6" 
+  markerUnits="strokeWidth"
+  markerWidth="52" markerHeight="18"
+  orient="0">
+    <text x="1" y="10" class='place-tokens label'>3</text>
+</marker>
+	<marker id="marker_end_3070075660"
+  viewBox="0 0 52 18" refX="-20" refY="10" 
+  markerUnits="strokeWidth"
+  markerWidth="52" markerHeight="18"
+  orient="0">
+    <text x="1" y="10" font-family="Verdana" font-size="10" fill="black" opacity='0.6'>p3</text>
+</marker>
+	<marker id="marker_start_3070075660"
+  viewBox="0 0 52 18" refX="4" refY="6" 
+  markerUnits="strokeWidth"
+  markerWidth="52" markerHeight="18"
+  orient="0">
+    <text x="1" y="10" class='place-tokens label'>3</text>
+</marker>
+	<marker id="marker_end_3070075564"
+  viewBox="0 0 52 18" refX="-20" refY="10" 
+  markerUnits="strokeWidth"
+  markerWidth="52" markerHeight="18"
+  orient="0">
+    <text x="1" y="10" font-family="Verdana" font-size="10" fill="black" opacity='0.6'>p0</text>
+</marker>
+	<marker id="marker_end_3070075596"
+  viewBox="0 0 52 18" refX="-20" refY="10" 
+  markerUnits="strokeWidth"
+  markerWidth="52" markerHeight="18"
+  orient="0">
+    <text x="1" y="10" font-family="Verdana" font-size="10" fill="black" opacity='0.6'>p1</text>
+</marker>
+	<marker id="marker_start_3070075596"
+  viewBox="0 0 52 18" refX="4" refY="6" 
+  markerUnits="strokeWidth"
+  markerWidth="52" markerHeight="18"
+  orient="0">
+    <text x="1" y="10" class='place-tokens label'>1</text>
+</marker>
+	<marker id="marker_end_3070075692"
+  viewBox="0 0 52 18" refX="-20" refY="10" 
+  markerUnits="strokeWidth"
+  markerWidth="52" markerHeight="18"
+  orient="0">
+    <text x="1" y="10" font-family="Verdana" font-size="10" fill="black" opacity='0.6'>p4</text>
+</marker>
+	<marker id="marker_start_3070088276"
+          viewBox="0 0 60 20" refX="0" refY="0" 
+          markerUnits="strokeWidth"
+          markerWidth="36" markerHeight="36"
+          orient="auto">
+            <text class="transition-name label">startLogin</text>
+        </marker>
+	<marker id="marker_start_3070088444"
+          viewBox="0 0 60 20" refX="0" refY="0" 
+          markerUnits="strokeWidth"
+          markerWidth="36" markerHeight="36"
+          orient="auto">
+            <text class="transition-name label">legalAttempt</text>
+        </marker>
+	<marker id="marker_start_3070088612"
+          viewBox="0 0 60 20" refX="0" refY="0" 
+          markerUnits="strokeWidth"
+          markerWidth="36" markerHeight="36"
+          orient="auto">
+            <text class="transition-name label">illegalAttempt</text>
+        </marker>
+	<marker id="marker_end_3070088612"
+          viewBox="0 0 80 20" refX="0" refY="-10" 
+          markerUnits="strokeWidth"
+          markerWidth="46" markerHeight="46"
+          orient="auto">
+            <text class="transition-guard label">(?u,?p)[?u!=""]</text>
+        </marker>
+	<marker id="marker_start_3070088780"
+          viewBox="0 0 60 20" refX="0" refY="0" 
+          markerUnits="strokeWidth"
+          markerWidth="36" markerHeight="36"
+          orient="auto">
+            <text class="transition-name label">attack</text>
+        </marker>
+	<marker id="marker_mid_2_5"
+          viewBox="0 0 60 20" refX="20" refY="0" 
+          markerUnits="strokeWidth"
+          markerWidth="36" markerHeight="36"
+          orient="0">
+            <text class='label'>&lt;&cent;&gt;</text>
+        </marker>
+	<marker id="marker_mid_5_3"
+          viewBox="0 0 60 20" refX="20" refY="0" 
+          markerUnits="strokeWidth"
+          markerWidth="36" markerHeight="36"
+          orient="0">
+            <text class='label'>&lt;&cent;&gt;</text>
+        </marker>
+	<marker id="marker_mid_3_6"
+          viewBox="0 0 60 20" refX="20" refY="0" 
+          markerUnits="strokeWidth"
+          markerWidth="36" markerHeight="36"
+          orient="0">
+            <text class='label'>&lt;&cent;&gt;</text>
+        </marker>
+	<marker id="marker_mid_0_6"
+          viewBox="0 0 60 20" refX="20" refY="0" 
+          markerUnits="strokeWidth"
+          markerWidth="36" markerHeight="36"
+          orient="0">
+            <text class='label'>&lt;?u,?p&gt;</text>
+        </marker>
+	<marker id="marker_mid_6_3"
+          viewBox="0 0 60 20" refX="20" refY="0" 
+          markerUnits="strokeWidth"
+          markerWidth="36" markerHeight="36"
+          orient="0">
+            <text class='label'>&lt;&cent;&gt;</text>
+        </marker>
+	<marker id="marker_mid_1_7"
+          viewBox="0 0 60 20" refX="20" refY="0" 
+          markerUnits="strokeWidth"
+          markerWidth="36" markerHeight="36"
+          orient="0">
+            <text class='label'>&lt;?u,?p&gt;</text>
+        </marker>
+	<marker id="marker_mid_7_4"
+          viewBox="0 0 60 20" refX="20" refY="0" 
+          markerUnits="strokeWidth"
+          markerWidth="36" markerHeight="36"
+          orient="0">
+            <text class='label'>&lt;&cent;&gt;</text>
+        </marker>
+	<marker id="marker_mid_0_7"
+          viewBox="0 0 60 20" refX="20" refY="0" 
+          markerUnits="strokeWidth"
+          markerWidth="36" markerHeight="36"
+          orient="0">
+            <text class='label'>&lt;?u,?p&gt;</text>
+        </marker>
+	<marker id="marker_mid_4_8"
+          viewBox="0 0 60 20" refX="20" refY="0" 
+          markerUnits="strokeWidth"
+          markerWidth="36" markerHeight="36"
+          orient="0">
+            <text class='label'>&lt;&cent;&gt;</text>
+        </marker>
+      </defs>
+
+      <g id='net'/>
+      <g id='tokens-widget'>
+        <text x='10' y='20' id='tokens'>
+        <tspan id='place-text-3070075660' x='10' dy='25' class='tokens-group'>p3
+            
+  <tspan id='token-text-3070100180' x='20' dy='16'>{'p': 'PSWD4', 'u': 'ID4'}</tspan>
+
+
+  <tspan id='token-text-3070100316' x='20' dy='16'>{'p': 'PSWD5', 'u': 'ID5'}</tspan>
+
+
+  <tspan id='token-text-3070100452' x='20' dy='16'>{'p': 'PSWD6', 'u': 'ID6'}</tspan>
+
+        </tspan> 
+
+<tspan id='place-text-3070075596' x='10' dy='25' class='tokens-group'>p1
+            
+  <tspan id='token-text-3070099636' x='20' dy='16'>{}</tspan>
+
+        </tspan> 
+
+<tspan id='place-text-3070075628' x='10' dy='25' class='tokens-group'>p2
+            
+  <tspan id='token-text-3070099772' x='20' dy='16'>{'p': 'PSWD1', 'u': 'ID1'}</tspan>
+
+
+  <tspan id='token-text-3070099908' x='20' dy='16'>{'p': 'PSWD2', 'u': 'ID2'}</tspan>
+
+
+  <tspan id='token-text-3070100044' x='20' dy='16'>{'p': 'PSWD3', 'u': 'ID3'}</tspan>
+
+        </tspan> 
+
+        </text>
+      </g>
+</svg>
+
+<script src="http://d3js.org/d3.v3.min.js"></script>
+<script>graph={
+    "transitions": [
+        {
+            "id": 3070088276, 
+            "guard": "", 
+            "enabled": {}, 
+            "name": "startLogin", 
+            "class": "transition"
+        }, 
+        {
+            "id": 3070088444, 
+            "guard": "", 
+            "enabled": {
+                "3070075628": [
+                    {
+                        "p": "PSWD1", 
+                        "u": "ID1"
+                    }, 
+                    {
+                        "p": "PSWD2", 
+                        "u": "ID2"
+                    }, 
+                    {
+                        "p": "PSWD3", 
+                        "u": "ID3"
+                    }
+                ], 
+                "3070075596": [
+                    {}
+                ]
+            }, 
+            "name": "legalAttempt", 
+            "class": "enabled transition"
+        }, 
+        {
+            "id": 3070088612, 
+            "guard": "(?u,?p)[?u!=\"\"]", 
+            "enabled": {}, 
+            "name": "illegalAttempt", 
+            "class": "transition"
+        }, 
+        {
+            "id": 3070088780, 
+            "guard": "", 
+            "enabled": {}, 
+            "name": "attack", 
+            "class": "attack transition"
+        }
+    ], 
+    "places": [
+        {
+            "id": 3070075628, 
+            "tokens": [
+                {
+                    "p": "PSWD1", 
+                    "u": "ID1"
+                }, 
+                {
+                    "p": "PSWD2", 
+                    "u": "ID2"
+                }, 
+                {
+                    "p": "PSWD3", 
+                    "u": "ID3"
+                }
+            ], 
+            "name": "p2", 
+            "class": "place"
+        }, 
+        {
+            "id": 3070075660, 
+            "tokens": [
+                {
+                    "p": "PSWD4", 
+                    "u": "ID4"
+                }, 
+                {
+                    "p": "PSWD5", 
+                    "u": "ID5"
+                }, 
+                {
+                    "p": "PSWD6", 
+                    "u": "ID6"
+                }
+            ], 
+            "name": "p3", 
+            "class": "place"
+        }, 
+        {
+            "id": 3070075564, 
+            "tokens": [], 
+            "name": "p0", 
+            "class": "place"
+        }, 
+        {
+            "id": 3070075596, 
+            "tokens": [
+                {}
+            ], 
+            "name": "p1", 
+            "class": "place"
+        }, 
+        {
+            "id": 3070075692, 
+            "tokens": [], 
+            "name": "p4", 
+            "class": "place"
+        }
+    ], 
+    "arcs": [
+        {
+            "target": 5, 
+            "class": "input", 
+            "label": "&lt;&cent;&gt;", 
+            "source": 2, 
+            "curved": 0, 
+            "id": "2_5"
+        }, 
+        {
+            "target": 3, 
+            "class": "output", 
+            "label": "&lt;&cent;&gt;", 
+            "source": 5, 
+            "curved": 0, 
+            "id": "5_3"
+        }, 
+        {
+            "target": 6, 
+            "class": "input", 
+            "label": "&lt;&cent;&gt;", 
+            "source": 3, 
+            "curved": -1, 
+            "id": "3_6"
+        }, 
+        {
+            "target": 6, 
+            "class": "input", 
+            "label": "&lt;?u,?p&gt;", 
+            "source": 0, 
+            "curved": 0, 
+            "id": "0_6"
+        }, 
+        {
+            "target": 3, 
+            "class": "output", 
+            "label": "&lt;&cent;&gt;", 
+            "source": 6, 
+            "curved": 1, 
+            "id": "6_3"
+        }, 
+        {
+            "target": 7, 
+            "class": "input", 
+            "label": "&lt;?u,?p&gt;", 
+            "source": 1, 
+            "curved": 0, 
+            "id": "1_7"
+        }, 
+        {
+            "target": 4, 
+            "class": "output", 
+            "label": "&lt;&cent;&gt;", 
+            "source": 7, 
+            "curved": 0, 
+            "id": "7_4"
+        }, 
+        {
+            "target": 7, 
+            "class": "inhibitor", 
+            "label": "&lt;?u,?p&gt;", 
+            "source": 0, 
+            "curved": 0, 
+            "id": "0_7"
+        }, 
+        {
+            "target": 8, 
+            "class": "input", 
+            "label": "&lt;&cent;&gt;", 
+            "source": 4, 
+            "curved": 0, 
+            "id": "4_8"
+        }
+    ]
+}</script>
+<script>
+    function calc_arc(d){
+        if (d.curved==0){
+            return 'M0,0 l50,0 l50,0'
+        }else{
+            return 'M0,0 A100,50 0 0,0 50,15 A100,50 0 0,0 100,0'
+        }
+        
+    }
+    function transform_arc(d){
+      var Ly = d.target.y-d.source.y
+      var Lx = d.target.x-d.source.x
+      var G = Math.sqrt(Lx*Lx + Ly*Ly)
+      scale = G/100;
+      var sin = Ly/G;
+      var cos = Lx/G;
+      return "translate("+d.source.x+","+d.source.y+") scale("+scale+","+scale+") matrix("+cos+","+sin+","+-1*sin+","+cos+",0,0)"
+
+    }
+</script>
+<script>
+
+var width = 960,
+    height = 500;
+
+var color = d3.scale.category20();
+var linkDistance = 120
+var force = d3.layout.force()
+    .charge(-1320)
+    .linkDistance(linkDistance)
+    .size([width, height]);
+
+var svg = d3.select("#net")
+  force
+      .nodes(graph.places.concat(graph.transitions))
+      .links(graph.arcs)
+      .start();
+
+  var link = svg.selectAll(".arc")
+      .data(graph.arcs)
+    .enter().append("path")
+      .attr("class", function(d){return 'arc ' + d['class']})
+      .attr("d", calc_arc)
+      .attr("fill", "#fff")
+      .attr("marker-mid", function(d){return 'url(#marker_mid_'+d.id+')'})
+      
+
+  var place = svg.selectAll(".place")
+      .data(graph.places)
+    .enter()
+      .append('path')
+      .attr("class", 'place')
+      .attr("onmouseover", function(d){return "document.getElementById('place-text-"+d.id+"').setAttribute('font-weight','bold')"})
+      .attr("onmouseout", function(d){return "document.getElementById('place-text-"+d.id+"').setAttribute('font-weight','normal')"})      
+      .attr("marker-start", function(d){return 'url(#marker_start_'+d.id+')'})
+      .attr("marker-mid", function(d){return 'url(#marker_mid_'+d.id+')'})
+      .attr("marker-end", function(d){return 'url(#marker_end_'+d.id+')'})      
+      .call(force.drag);
+
+  place.append("desc")
+      .text(function(d) { return d.name; });
+
+  var transition = svg.selectAll(".transition")
+      .data(graph.transitions)
+    .enter()
+      .append('path')
+      .attr("class", function(d){return d['class']})
+      .attr("width", 30)
+      .attr("height", 15)
+      .attr("marker-start", function(d){return 'url(#marker_start_'+d.id+')'})
+      .attr("marker-mid", function(d){return 'url(#marker_mid_'+d.id+')'})
+      .attr("marker-end", function(d){return 'url(#marker_end_'+d.id+')'})      
+
+      .call(force.drag);
+
+  transition.append("desc")
+      .text(function(d) { return d.name; });
+  
+  force.on("tick", function() {
+    link.attr("transform", transform_arc)
+
+    place.attr("d", function(d) { return 'M'+ d.x + ',' + d.y + ' m -15,0 a 15,15 0 1,0 30,0 a 15,15 0 1,0 -30,0 z'})
+
+    transition.attr("d", function(d) { return 'M' + (d.x-15) + ',' + (d.y-7) + ' l30,0 l0,15 l-30,0 z'});
+
+  });
+
+</script>
+
+</body>

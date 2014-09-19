@@ -8,7 +8,8 @@ class Place(object):
     def __repr__(self):
         return '<%s.%s[%s] object at %s>'%(self.__class__.__module__,
                                            self.__class__.__name__,
-                                           self.name, id(self))
+                                           self.name,
+                                           id(self))
 
 class Net(object):
     def __init__(self, *names):
@@ -24,9 +25,7 @@ class Net(object):
         self.transitions.append(bind(*args, **kwargs))
         return self.transitions[-1]
 
-    def substitutions(self, marking):
+    def submarkings(self, marking):
         for transition in self.transitions:
-            enabled = transition.enabled(marking)
-            if enabled is not None:
-                yield transition, dict(enabled)
-
+            for submarking in transition(marking):
+                yield transition, submarking

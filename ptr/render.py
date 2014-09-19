@@ -1,17 +1,19 @@
+import os
 import json
 from tempfile import NamedTemporaryFile as Temp
 import subprocess
 
 from .base import Net
 from .transition import arc_label_tuple
-from .template import ( TEMPLATE,
+from .template import ( MARKING_TEMPLATE,
                         PLACE_MARKER,
                         ARC_MARKER,
                         TRANSITION_NAME_MARKER,
                         TRANSITION_GUARD_MARKER,
                         PLACE_TOKENS,
                         PLACE_INFO,
-                        TOKEN_INFO)
+                        TOKEN_INFO,
+                        GRAPH_TEMPLATE)
 
 class D3Net(Net):
     def format_arc_label(self, label):
@@ -125,13 +127,20 @@ class D3Net(Net):
                                          'tokens':'\n'.join((TOKEN_INFO%('token-text-%s'%id(token),
                                                                           token.__repr__()) for token in tokens))})
         return '\n'.join(infos)
-    def render(self, marking={}):
-        return TEMPLATE%self.d3_env(marking=marking)
 
-    def display(self, marking={}):
+    def render(self, marking={}, dir=None):
+        if not os.path.exists(dir):
+            os.makedirs(dir)
+
+        for fname in os.listdir(dir):
+            fpath = os.path.join(dir, fname)
+            if os.path.isfile(fpath) and fpath.endswith('.html'):
+                os.unlink(fpath)
+
         filename = None
-        with Temp(delete=False, suffix='.html') as temp:
-            temp.write(self.render(marking=marking))
+
+        with Temp(delete=False, suffix='.html', dir=dir) as temp:
+            temp.write(MARKING_TEMPLATE%self.d3_env(marking=marking))
             filename = temp.name
 
-        subprocess.call(["chromium-browser", filename])
+        return filename

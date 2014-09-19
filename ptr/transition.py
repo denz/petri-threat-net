@@ -1,14 +1,14 @@
 from copy import copy
 import types
 from collections import defaultdict, Iterable
-from itertools import product
+from itertools import product, chain
 from inspect import getargspec
 
 def matches(label, token):
     #maybe exact match is implyed
     return set(token.keys()).issuperset(set(label))
 
-def variations(marking):
+def input_variations(marking):
     keys = []
     values = []
 
@@ -39,11 +39,11 @@ def without(marking, variation):
 def output_labeled(arclabel, tokens):
     combinations = []
     if isinstance(arclabel, Iterable):
-        
-        for token in tokens:
-            if not token in combinations:
-                yield dict([(k, token.get(k, None)) for k in arclabel])
-                combinations.append(token)
+        for token in tokens:            
+            t = dict([(k, token.get(k, None)) for k in arclabel])
+            if not t in combinations:
+                yield t
+                combinations.append(t)
 
     if callable(arclabel):
         token = arclabel(tokens)
@@ -51,9 +51,13 @@ def output_labeled(arclabel, tokens):
             for t in token:
                 if not t in combinations:
                     yield t
-                    combinations.append(t)
+                    combinations.append(token)
         else:
-            yield t
+            if not token in combinations:
+                yield token
+                combinations.append(token)
+
+
 
 def bind(name=None,
          guard=None,
@@ -71,27 +75,39 @@ def bind(name=None,
     is_attack - bool
     '''
 
+    def split(marking):
+        input_places = list(chain(*inputs.values()))
+        output_places = list(chain(*outputs.values()))
+        return [m for m in marking if m in input_places],\
+               [m for m in marking if m in output_places], \
+               [m for m in marking if not (m in input_places or m in output_places)]
+
     def translate(marking):
         '''
-        generates a markings representing firing a transition with @marking
-        
-        @marking: is filtered of non enabled places and tokens for this transition
+        generates a markings representing firing this transition with @marking
         '''
+        if not enabled(marking):
+            return
+        input_places, output_places, unrelated_places = split(marking)
+        input_marking = dict([(k,v) for k,v in marking.items() if k in input_places])
+        output_marking = dict([(k,v) for k,v in marking.items() if k in output_places])
+        neutral_marking = dict([(k,v) for k,v in marking.items() if k in unrelated_places])
+
         combinations = []
-        for variation in variations(marking):
-            cleaned = defaultdict(list, without(marking, variation))
+        for variation in input_variations(input_marking):
+            sub = defaultdict(list, without(input_marking, variation))
+            sub.update(neutral_marking)
             tokenstack = [v[1] for v in variation]
             for arc_label, places in outputs.items():
                 for token in output_labeled(arc_label, tokenstack):
-                    subtokened = copy(cleaned)
                     for place in places:
-                        subtokened[place].append(token)
-                    result = dict(subtokened)
-                    if not result in combinations:
-                        yield result
-                        combinations.append(result)
+                        sub[place].extend(output_marking.get(place, []))
+                        sub[place].append(token)
 
-
+            sub = dict(sub)
+            if not sub in combinations:
+                yield sub
+                combinations.append(sub)
 
     def enabled(marking):
         for label, places in inhibitors.items():
